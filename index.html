@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Era — 让你的 iPhone 替你工作</title>
+<meta name="description" content="在 Mac 上说一句话，你的 iPhone 自己回微信、发小红书、跑腿办事。一切都发生在你自己的手机上，全程可视、随时接管。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;900&family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f5f0e6;
+  --paper-dark:#ebe4d5;
+  --ink:#211c14;
+  --ink-soft:#57503f;
+  --accent:#c8321e;         /* 朱红印泥 */
+  --accent-dark:#a02616;
+  --rule:#cbc1ad;
+  --card:#fcf9f2;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--paper);color:var(--ink);
+  font-family:'Noto Sans SC','PingFang SC','Hiragino Sans GB',sans-serif;
+  font-size:16px;line-height:1.75;overflow-x:hidden;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:999;opacity:.5;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.04 0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.serif{font-family:'Noto Serif SC',serif}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:20px 0;border-bottom:2px solid var(--ink)}
+.logo{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:22px;letter-spacing:-.02em}
+.logo sup{color:var(--accent);font-size:11px;letter-spacing:.1em}
+.topbar .tag{font-size:12px;letter-spacing:.3em;color:var(--ink-soft)}
+@media(max-width:640px){.topbar .tag{display:none}}
+
+.hero{padding:72px 0 40px;position:relative}
+.hero .file-no{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.22em;color:var(--ink-soft);display:flex;gap:24px;flex-wrap:wrap;margin-bottom:28px}
+.hero h1{
+  font-family:'Noto Serif SC',serif;font-weight:900;
+  font-size:clamp(40px,8.4vw,92px);line-height:1.12;letter-spacing:.02em;max-width:15ch;
+}
+.hero h1 .accent{color:var(--accent)}
+.hero .sub{margin-top:26px;max-width:38em;font-size:17px;color:var(--ink-soft)}
+.hero .sub strong{color:var(--ink)}
+
+/* 朱红印章 */
+.stamp{
+  position:absolute;top:60px;right:0;
+  width:96px;height:96px;border:4px solid var(--accent);border-radius:10px;
+  color:var(--accent);display:flex;align-items:center;justify-content:center;
+  font-family:'Noto Serif SC',serif;font-weight:900;font-size:30px;line-height:1.2;
+  writing-mode:vertical-rl;letter-spacing:.14em;
+  transform:rotate(8deg);
+  animation:stampIn .5s cubic-bezier(.2,1.6,.4,1) .9s both;
+  mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='r'%3E%3CfeTurbulence baseFrequency='0.55' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.9 0.1'/%3E%3C/filter%3E%3Crect width='120' height='120' fill='white' filter='url(%23r)'/%3E%3C/svg%3E");
+  mask-size:cover;
+}
+@keyframes stampIn{
+  0%{transform:rotate(8deg) scale(2.4);opacity:0}
+  60%{transform:rotate(8deg) scale(.94);opacity:1}
+  100%{transform:rotate(8deg) scale(1);opacity:1}
+}
+@media(max-width:720px){.stamp{position:static;display:flex;margin-top:24px;transform:rotate(-4deg)}}
+
+.rv{opacity:0;transform:translateY(18px);animation:rv .7s cubic-bezier(.2,.8,.2,1) forwards}
+@keyframes rv{to{opacity:1;transform:none}}
+.d1{animation-delay:.05s}.d2{animation-delay:.18s}.d3{animation-delay:.32s}.d4{animation-delay:.46s}.d5{animation-delay:.6s}
+
+.cta-row{margin-top:36px;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.cta-form{display:flex;flex:1;min-width:280px;max-width:480px;border:2px solid var(--ink);background:var(--card)}
+.cta-form input{flex:1;border:0;background:transparent;padding:16px 18px;font-size:15px;color:var(--ink);outline:none;min-width:0;font-family:inherit}
+.cta-form input::placeholder{color:#a2967f}
+.cta-form button{border:0;background:var(--ink);color:var(--paper);font-weight:700;font-size:15px;padding:0 24px;cursor:pointer;letter-spacing:.2em;transition:background .15s;white-space:nowrap;font-family:inherit}
+.cta-form button:hover{background:var(--accent)}
+.cta-note{font-size:12.5px;color:var(--ink-soft)}
+.cta-note b{color:var(--accent)}
+.form-ok{display:none;padding:16px 18px;border:2px solid var(--accent);color:var(--accent-dark);font-weight:700;background:var(--card)}
+
+/* 手机动画 */
+.demo{margin:64px 0 0;display:grid;grid-template-columns:340px 1fr;gap:48px;align-items:start}
+@media(max-width:860px){.demo{grid-template-columns:1fr}}
+.phone{
+  width:300px;height:610px;margin:0 auto;border:3px solid var(--ink);border-radius:44px;background:#12100c;
+  position:relative;box-shadow:12px 12px 0 var(--paper-dark),12px 12px 0 2px var(--rule);overflow:hidden;
+}
+.phone .notch{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:110px;height:26px;background:#12100c;border-radius:20px;z-index:3;border:1px solid #2c2820}
+.screen{position:absolute;inset:6px;border-radius:38px;background:#1a1712;overflow:hidden}
+.chat{position:absolute;inset:0;padding:56px 14px 14px;display:flex;flex-direction:column;gap:10px;font-size:12.5px}
+.bubble{max-width:84%;padding:9px 12px;border-radius:14px;line-height:1.5;opacity:0;transform:translateY(10px) scale(.96)}
+.bubble.in{align-self:flex-start;background:#2e2921;color:#eae2d2;border-bottom-left-radius:4px}
+.bubble.out{align-self:flex-end;background:var(--accent);color:#fff;border-bottom-right-radius:4px}
+.bubble.sys{align-self:center;background:transparent;color:#93876f;font-size:10.5px;padding:2px}
+@keyframes pop{0%{opacity:0;transform:translateY(10px) scale(.96)}6%{opacity:1;transform:none}88%{opacity:1;transform:none}94%,100%{opacity:0;transform:translateY(-6px)}}
+.chat .b1{animation:pop 13s .4s infinite}
+.chat .b2{animation:pop 13s 1.6s infinite}
+.chat .b3{animation:pop 13s 3.2s infinite}
+.chat .b4{animation:pop 13s 5.4s infinite}
+.chat .b5{animation:pop 13s 7.2s infinite}
+.chat .b6{animation:pop 13s 9s infinite}
+.cursor-dot{position:absolute;width:34px;height:34px;border-radius:50%;z-index:4;border:2px solid var(--accent);background:rgba(200,50,30,.25);left:50%;top:70%;animation:cursorMove 13s .2s infinite;pointer-events:none}
+@keyframes cursorMove{
+  0%{left:52%;top:76%;transform:scale(1)}
+  10%{left:52%;top:76%;transform:scale(.8)}
+  13%{transform:scale(1)}
+  28%{left:70%;top:64%}
+  32%{transform:scale(.8)}
+  35%{transform:scale(1)}
+  55%{left:30%;top:40%}
+  60%{transform:scale(.8)}
+  63%{transform:scale(1)}
+  82%{left:60%;top:82%}
+  86%{transform:scale(.8)}
+  90%{transform:scale(1)}
+  100%{left:52%;top:76%}
+}
+.demo-copy h2{font-family:'Noto Serif SC',serif;font-weight:900;font-size:clamp(24px,3.6vw,36px);line-height:1.3;margin-bottom:20px}
+.demo-copy p{color:var(--ink-soft);max-width:36em;margin-bottom:14px;font-size:15px}
+.worklog{margin-top:28px;border:2px solid var(--ink);background:var(--card)}
+.worklog .wl-head{display:flex;justify-content:space-between;padding:10px 16px;border-bottom:2px solid var(--ink);font-size:12px;letter-spacing:.2em}
+.worklog .wl-head span:last-child{color:var(--accent)}
+.wl-row{display:grid;grid-template-columns:56px 1fr auto;gap:12px;padding:12px 16px;border-bottom:1px dashed var(--rule);font-size:13.5px;align-items:baseline}
+.wl-row:last-child{border-bottom:0}
+.wl-row .t{color:var(--ink-soft);font-size:11.5px;font-family:'IBM Plex Mono',monospace}
+.wl-row .ok{color:var(--accent);font-weight:700;font-size:11px;letter-spacing:.12em}
+
+section{padding:88px 0;border-top:2px solid var(--ink)}
+.sec-label{font-size:12px;letter-spacing:.32em;color:var(--accent);margin-bottom:14px;font-weight:700}
+.sec-title{font-family:'Noto Serif SC',serif;font-weight:900;font-size:clamp(28px,4.6vw,46px);line-height:1.25;max-width:22ch}
+.sec-intro{margin-top:18px;color:var(--ink-soft);max-width:40em;font-size:15px}
+
+.sr{opacity:0;transform:translateY(24px);transition:opacity .7s cubic-bezier(.2,.8,.2,1),transform .7s cubic-bezier(.2,.8,.2,1)}
+.sr.on{opacity:1;transform:none}
+
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--ink);border:2px solid var(--ink);margin-top:48px}
+@media(max-width:820px){.steps{grid-template-columns:1fr}}
+.step{background:var(--card);padding:32px 26px}
+.step .num{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:56px;line-height:1;color:var(--paper-dark);-webkit-text-stroke:1.5px var(--ink);margin-bottom:18px}
+.step h3{font-family:'Noto Serif SC',serif;font-size:21px;font-weight:900;margin-bottom:10px}
+.step p{font-size:14px;color:var(--ink-soft)}
+.step .foot{margin-top:18px;font-size:11.5px;letter-spacing:.2em;color:var(--accent);font-weight:700}
+
+.jobs{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px}
+@media(max-width:820px){.jobs{grid-template-columns:1fr}}
+.job{border:2px solid var(--ink);background:var(--card);padding:26px 24px;transition:transform .2s,box-shadow .2s}
+.job:hover{transform:translate(-3px,-3px);box-shadow:6px 6px 0 var(--ink)}
+.job .role{font-size:11.5px;letter-spacing:.26em;color:var(--accent);font-weight:700}
+.job h3{font-family:'Noto Serif SC',serif;font-size:22px;font-weight:900;margin:10px 0 12px}
+.job p{font-size:14px;color:var(--ink-soft)}
+.job ul{margin-top:14px;list-style:none}
+.job li{font-size:13.5px;padding:7px 0;border-top:1px dashed var(--rule)}
+.job li::before{content:"→ ";color:var(--accent)}
+
+.diff{display:grid;grid-template-columns:1fr 1fr;gap:48px;margin-top:48px;align-items:start}
+@media(max-width:820px){.diff{grid-template-columns:1fr}}
+.diff-item{padding:26px 0;border-top:2px solid var(--ink)}
+.diff-item h3{font-family:'Noto Serif SC',serif;font-size:21px;font-weight:900;margin-bottom:10px}
+.diff-item h3 .no{color:var(--accent);margin-right:10px;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600}
+.diff-item p{font-size:14px;color:var(--ink-soft)}
+.badge-card{border:2px solid var(--ink);background:var(--card);overflow:hidden;box-shadow:10px 10px 0 var(--paper-dark),10px 10px 0 2px var(--rule);transform:rotate(-1.2deg);max-width:400px;margin:0 auto}
+.badge-card .bc-head{background:var(--ink);color:var(--paper);padding:12px 20px;font-size:12px;letter-spacing:.26em;display:flex;justify-content:space-between}
+.badge-card .bc-head span:last-child{color:#e8b9b1}
+.badge-card .bc-body{padding:24px 20px}
+.bc-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px dashed var(--rule);font-size:14px}
+.bc-row:last-child{border-bottom:0}
+.bc-row .k{color:var(--ink-soft);font-size:12px;letter-spacing:.2em}
+.bc-row .v{font-weight:700}
+.bc-row .v.a{color:var(--accent)}
+
+.invite-box{margin-top:48px;border:2px solid var(--ink);background:var(--card);padding:36px 32px;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center}
+@media(max-width:720px){.invite-box{grid-template-columns:1fr}}
+.invite-box h3{font-family:'Noto Serif SC',serif;font-size:24px;font-weight:900;margin-bottom:8px}
+.invite-box p{font-size:14px;color:var(--ink-soft);max-width:36em}
+.invite-num{text-align:right}
+@media(max-width:720px){.invite-num{text-align:left}}
+.invite-num .big{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:52px;color:var(--accent);letter-spacing:-.02em}
+.invite-num .cap{display:block;font-size:12px;letter-spacing:.2em;color:var(--ink-soft);margin-top:4px}
+
+.faq{margin-top:48px;border-top:2px solid var(--ink)}
+.faq details{border-bottom:2px solid var(--ink)}
+.faq summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;padding:22px 4px;font-family:'Noto Serif SC',serif;font-size:19px;font-weight:900}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary .plus{font-family:'IBM Plex Mono',monospace;color:var(--accent);font-size:20px;transition:transform .2s}
+.faq details[open] summary .plus{transform:rotate(45deg)}
+.faq .a{padding:0 4px 24px;font-size:14.5px;color:var(--ink-soft);max-width:44em}
+
+.final{text-align:center;padding:110px 0}
+.final h2{font-family:'Noto Serif SC',serif;font-weight:900;font-size:clamp(34px,6.4vw,68px);line-height:1.2}
+.final h2 .accent{color:var(--accent)}
+.final .cta-row{justify-content:center}
+.final .cta-form{margin:0 auto}
+footer{border-top:2px solid var(--ink);padding:28px 0;font-size:12.5px;color:var(--ink-soft)}
+footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+footer a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--rule)}
+footer a:hover{color:var(--accent);border-color:var(--accent)}
+
+.marquee{border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);background:var(--ink);color:var(--paper);overflow:hidden;padding:12px 0;white-space:nowrap}
+.marquee .track{display:inline-block;animation:mq 28s linear infinite;font-size:13.5px;letter-spacing:.14em}
+.marquee b{color:#e8867a}
+@keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion: reduce){
+  .rv,.stamp{animation-duration:.01s !important;animation-delay:0s !important}
+  .marquee .track,.chat .bubble,.cursor-dot{animation:none !important}
+  .chat .bubble{opacity:1;transform:none}
+  .sr{transition:none;opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="topbar">
+    <div class="logo">Era<sup> 内测</sup></div>
+    <div class="tag">你的 iPhone 入职文件</div>
+  </div>
+</div>
+
+<header class="hero wrap">
+  <div class="file-no rv d1">
+    <span>档案编号 001-A</span><span>个人自动化部</span><span>2026 年设立</span>
+  </div>
+  <div class="stamp">已上岗</div>
+  <h1 class="rv d2">让你的 <span class="accent">iPhone</span><br>替你工作</h1>
+  <p class="sub rv d3">在 Mac 上说一句话，你的 iPhone 自己点、自己滑、自己打字——<strong>回微信、发小红书、抢号跑腿</strong>，都在你自己的手机上完成。你只需要在旁边看着，或者干脆去忙别的。</p>
+
+  <div class="cta-row rv d4">
+    <!-- TODO: 替换为真实收集表单（金数据/腾讯问卷/Tally） -->
+    <form class="cta-form" id="waitlist" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+      <input type="email" name="email" required placeholder="留下邮箱，排队领邀请码">
+      <button type="submit">申请内测</button>
+    </form>
+    <div class="form-ok" id="form-ok">已加入排队。你的 iPhone 很快就要上班了 ✓</div>
+  </div>
+  <p class="cta-note rv d5">内测<b>免费</b> · 邀请码分批发放 · 转发海报可提前上岗</p>
+
+  <div class="demo">
+    <div class="phone rv d4" aria-label="iPhone 自动完成任务的演示动画">
+      <div class="notch"></div>
+      <div class="screen">
+        <div class="chat">
+          <div class="bubble sys b1">Era · 正在执行：「替我回微信」</div>
+          <div class="bubble in b2">哥，周五的会议室还能约吗？</div>
+          <div class="bubble out b3">可以的，帮你订了周五下午 2 点，日历邀请马上发你 👌</div>
+          <div class="bubble in b4">上次说的报价单方便发一下吗？</div>
+          <div class="bubble out b5">刚发你邮箱了，有问题随时说～</div>
+          <div class="bubble sys b6">✓ 已处理 23 条消息 · 摘要已发送到 Mac</div>
+        </div>
+      </div>
+      <div class="cursor-dot"></div>
+    </div>
+    <div class="demo-copy sr">
+      <h2>早上 9 点 14 分，<br>无聊的活儿它已经干完了。</h2>
+      <p>Era 是一个 Mac 应用，通过一根数据线驱动你桌上的 iPhone——用的是苹果官方提供给开发者的自动化通道。不越狱、不用云手机、不把账号交给别人的服务器。</p>
+      <p>每一步操作都实时直播在 Mac 上，随时暂停、随时接管。</p>
+      <div class="worklog">
+        <div class="wl-head"><span>今日工作记录</span><span>iPhone · 工号 001</span></div>
+        <div class="wl-row"><span class="t">08:50</span><span>回复了 23 条微信，2 条重要消息已标记给你</span><span class="ok">已完成</span></div>
+        <div class="wl-row"><span class="t">08:57</span><span>发布了今天的小红书图文，回复前 10 条评论</span><span class="ok">已完成</span></div>
+        <div class="wl-row"><span class="t">09:06</span><span>清理了相册里 312 张截图</span><span class="ok">已完成</span></div>
+        <div class="wl-row"><span class="t">09:11</span><span>挂号提醒已设好，周四放号那一秒它来抢</span><span class="ok">待命中</span></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="marquee" aria-hidden="true">
+  <div class="track">
+    <b>你的 iPhone 该上班了</b> ｜ 替你回微信 ｜ 替你发小红书 ｜ 替你抢号 ｜ 替你清相册 ｜ 替你比价点外卖 ｜ <b>你的 iPhone 该上班了</b> ｜ 替你回微信 ｜ 替你发小红书 ｜ 替你抢号 ｜ 替你清相册 ｜ 替你比价点外卖 ｜
+  </div>
+</div>
+
+<section id="how">
+  <div class="wrap">
+    <div class="sec-label sr">入职培训 · 只需十分钟</div>
+    <h2 class="sec-title sr">三步，它就正式上岗。</h2>
+    <div class="steps sr">
+      <div class="step">
+        <div class="num">01</div>
+        <h3>连上数据线</h3>
+        <p>iPhone 连接 Mac，Era 自动完成一次性配置——用的是苹果官方自动化通道，手机保持原样，不越狱不改机。</p>
+        <div class="foot">不越狱 · 不用云手机</div>
+      </div>
+      <div class="step">
+        <div class="num">02</div>
+        <h3>说出需求</h3>
+        <p>用大白话下指令：「把今天的群消息总结一下」「帮我把这篇笔记发了」「周四放号帮我抢」。</p>
+        <div class="foot">一句话 · 任何 App</div>
+      </div>
+      <div class="step">
+        <div class="num">03</div>
+        <h3>看它干活</h3>
+        <p>iPhone 自己点、自己滑、自己打字，屏幕实时直播在 Mac 上。随时暂停接管；支付、发送、删除，必先问你。</p>
+        <div class="foot">你永远是老板</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="jobs">
+  <div class="wrap">
+    <div class="sec-label sr">在招岗位 · 由你的手机出任</div>
+    <h2 class="sec-title sr">它上岗第一天就会干的活。</h2>
+    <p class="sec-intro sr">Era 是通用助理——只要是手机屏幕上能完成的事，它都能学会。这三件，是内测用户最先交出去的。</p>
+    <div class="jobs sr">
+      <div class="job">
+        <div class="role">全职 · 献给所有上班族</div>
+        <h3>微信回复员</h3>
+        <p>你的消息债，它来还。上班时手机放桌上，它替你盯着。</p>
+        <ul>
+          <li>几百条群消息，总结成五行</li>
+          <li>礼貌性回复替你回，重要的留给你</li>
+          <li>关键消息第一时间提醒到 Mac</li>
+        </ul>
+      </div>
+      <div class="job">
+        <div class="role">兼职 · 献给创作者</div>
+        <h3>小红书运营</h3>
+        <p>Mac 上做好内容，发布和维护交给它。</p>
+        <ul>
+          <li>定时发布图文，格式排版不出错</li>
+          <li>新笔记前排评论逐条回复</li>
+          <li>每天的数据抄进表格，不用你截图</li>
+        </ul>
+      </div>
+      <div class="job">
+        <div class="role">钟点工 · 献给每个人</div>
+        <h3>生活跑腿</h3>
+        <p>那些只能在手机 App 里干的琐事，全包。</p>
+        <ul>
+          <li>三甲医院放号那一秒，它比你手快</li>
+          <li>同一杯奶茶，两个平台比价下单</li>
+          <li>相册截图、重复照片，一句话清干净</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="different">
+  <div class="wrap">
+    <div class="sec-label sr">丑话说在前面</div>
+    <h2 class="sec-title sr">凭什么这个不一样？</h2>
+    <div class="diff">
+      <div>
+        <div class="diff-item sr">
+          <h3><span class="no">壹/</span>在你手机上，不在云机房</h3>
+          <p>市面上的"自动化服务"跑在机房的云手机里，平台一抓一个准。Era 跑在你面前这台 iPhone 上：你的真机、你的登录态、你平时的网络环境——没有异地登录，没有陌生设备。</p>
+        </div>
+        <div class="diff-item sr">
+          <h3><span class="no">贰/</span>每一步你都看得见</h3>
+          <p>手机屏幕实时直播在 Mac 上，每个动作都有说明。支付、发消息、删东西，它一定先停下来问你。它替你干活，但从不背着你干活。</p>
+        </div>
+        <div class="diff-item sr">
+          <h3><span class="no">叁/</span>像人一样有分寸</h3>
+          <p>它懂节奏：该慢的时候慢，该休息的时候休息，不做机器式的疯狂连点。谨慎不是限制，是功能。</p>
+        </div>
+      </div>
+      <div class="sr">
+        <div class="badge-card">
+          <div class="bc-head"><span>Era · 员工工牌</span><span>工号 001</span></div>
+          <div class="bc-body">
+            <div class="bc-row"><span class="k">员工</span><span class="v">你的 iPhone</span></div>
+            <div class="bc-row"><span class="k">岗位</span><span class="v">私人助理</span></div>
+            <div class="bc-row"><span class="k">直属上级</span><span class="v a">你</span></div>
+            <div class="bc-row"><span class="k">工作地点</span><span class="v">你的桌面</span></div>
+            <div class="bc-row"><span class="k">工时</span><span class="v">全年无休</span></div>
+            <div class="bc-row"><span class="k">内测薪资</span><span class="v a">￥0 / 月</span></div>
+            <div class="bc-row"><span class="k">忠诚度</span><span class="v">绝对</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="invite">
+  <div class="wrap">
+    <div class="sec-label sr">内测名额</div>
+    <h2 class="sec-title sr">分批发码，先到先上岗。</h2>
+    <div class="invite-box sr">
+      <div>
+        <h3>怎么拿到邀请码？</h3>
+        <p>排队即可。想插队：把你的排队海报转发到朋友圈或即刻，每次有效转发向前挪 50 位。内测期间完全免费，我们只要你的真实反馈。</p>
+      </div>
+      <div class="invite-num">
+        <span class="big">50<span style="font-size:22px">人/批</span></span>
+        <span class="cap">每周发放 · 转发提前上岗</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <div class="sec-label sr">你肯定想问</div>
+    <h2 class="sec-title sr">问得好，直说。</h2>
+    <div class="faq sr">
+      <details>
+        <summary>会不会被封号？<span class="plus">+</span></summary>
+        <div class="a">Era 在你自己的手机上、用你本人的登录态、按人类的节奏操作——一台设备一个账号，和"云手机机房 + 批量账号"的封号模式恰好相反。它还内置作息节奏：干一会儿歇一会儿，像人一样。谨慎是我们的第一设计原则。</div>
+      </details>
+      <details>
+        <summary>需要什么设备？<span class="plus">+</span></summary>
+        <div class="a">一台 Mac、一台 iPhone、一根数据线。首次配置十分钟左右，跟着引导走就行。之后每天就是：打开 Era，说句话，看它干活。</div>
+      </details>
+      <details>
+        <summary>手机会被改造吗？<span class="plus">+</span></summary>
+        <div class="a">不会。不越狱、不装描述文件改系统、不动任何数据。用的是苹果官方给开发者的自动化测试通道——App Store 上每个 App 上架前都走这条路。随时拔线，手机和原来一模一样。</div>
+      </details>
+      <details>
+        <summary>我的聊天内容会上传吗？<span class="plus">+</span></summary>
+        <div class="a">屏幕画面只直播到你自己的 Mac，不进我们的服务器。AI 处理屏幕内容只为决定下一步点哪里，不留存。敏感操作（支付、发送、删除）永远先问你。</div>
+      </details>
+      <details>
+        <summary>支持哪些 App？收费吗？<span class="plus">+</span></summary>
+        <div class="a">人能用的 App 它都能学——它像人一样看屏幕。内测版优先打磨微信、小红书、相册、外卖和挂号场景。内测完全免费；正式版会有早鸟价，内测用户直接锁定最低档。</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section class="final">
+  <div class="wrap">
+    <h2 class="sr">该轮到你，<br><span class="accent">当老板了。</span></h2>
+    <div class="cta-row sr" style="margin-top:36px">
+      <form class="cta-form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+        <input type="email" name="email" required placeholder="留下邮箱，排队领邀请码">
+        <button type="submit">申请内测</button>
+      </form>
+    </div>
+    <p class="cta-note sr" style="margin-top:14px">内测<b>免费</b> · 每周发码 · 转发海报提前上岗</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Era — 让你的 iPhone 替你工作</span>
+    <span>
+      <a href="https://github.com/fengyiqicoder" target="_blank" rel="noopener">GitHub</a> ｜
+      <a href="mailto:fengyiqicoder@gmail.com">联系我们</a>
+    </span>
+  </div>
+</footer>
+
+<script>
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('on');io.unobserve(e.target)}}),{threshold:.12});
+document.querySelectorAll('.sr').forEach(el=>io.observe(el));
+document.querySelectorAll('form.cta-form').forEach(f=>{
+  f.addEventListener('submit',ev=>{
+    if(f.action.includes('YOUR_FORM_ID')){
+      ev.preventDefault();
+      const ok=document.getElementById('form-ok');
+      if(ok){ok.style.display='block';f.style.display='none'}
+      else{f.querySelector('button').textContent='✓ 已排队';f.querySelector('input').disabled=true}
+      try{localStorage.setItem('era_waitlist',f.querySelector('input').value)}catch(e){}
+    }
+  });
+});
+</script>
+</body>
+</html>
